@@ -1,44 +1,75 @@
 import streamlit as st
 import pandas as pd
 
-st.title("Recipe Ranking System")
+# ==========================================
+# PAGE CONFIG
+# ==========================================
+
+st.set_page_config(
+    page_title="Recipe Ranking System",
+    page_icon="🍽️",
+    layout="wide"
+)
+
+st.title("🍽️ Recipe Ranking System")
+
+# ==========================================
+# LOAD DATA
+# ==========================================
 
 df = pd.read_csv(
     "data/processed/ranked_recipes.csv"
 )
 
-# TOP 20
-st.subheader("Top 20 Recipes")
+df["recipe_id"] = df["recipe_id"].astype(int)
 
-top20 = df.sort_values(
-    by="final_score",
-    ascending=False
-).head(20)
+# ==========================================
+# TOP 20 TABLE
+# ==========================================
 
-st.dataframe(top20)
+st.subheader("🏆 Top 20 Recipes")
 
-# График
-st.subheader("Top 20 Final Scores")
+top20 = (
+    df.sort_values(
+        by="final_score",
+        ascending=False
+    )
+    .head(20)
+)
+
+st.dataframe(
+    top20,
+    use_container_width=True
+)
+
+# ==========================================
+# BAR CHART
+# ==========================================
+
+st.subheader("📊 Top 20 Final Scores")
 
 st.bar_chart(
     top20.set_index("recipe_id")["final_score"]
 )
 
-# Поиск рецепта
-st.subheader("Search Recipe")
+# ==========================================
+# SEARCH RECIPE
+# ==========================================
 
-recipe_id = st.number_input(
-    "Recipe ID",
-    min_value=1,
-    step=1
+st.subheader("🔍 Search Recipe")
+
+recipe_id = st.selectbox(
+    "Choose Recipe ID",
+    sorted(df["recipe_id"].unique())
 )
 
 result = df[
     df["recipe_id"] == recipe_id
 ]
 
-if not result.empty:
-    st.success("Recipe found")
-    st.dataframe(result)
-else:
-    st.warning("Recipe not found")
+st.success(f"Recipe ID {recipe_id} found")
+
+st.dataframe(
+    result,
+    use_container_width=True
+)
